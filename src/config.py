@@ -4,6 +4,7 @@ from pathlib import Path
 # Get the project directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+@dataclass
 class Config:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     embed_model = "google/embeddinggemma-300m"
@@ -18,6 +19,6 @@ class Config:
     DATA_DIR = BASE_DIR / "data" / "raw"
     study_path = DATA_DIR / "study.txt"
     csv_path = DATA_DIR / "student_scores.csv"
-    article_path 
+    article_path = DATA_DIR / "article.txt"
 
 config = Config()
