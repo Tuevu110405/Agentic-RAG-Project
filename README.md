@@ -6,7 +6,7 @@ This system uses agentic rag architecture including brilliant router to optimize
 Project aims not only to develop a normal RAG chatbot, but also build an **Agentic workflow**. An intelligient Router determines the intention of users and dirent the queries from them to a specified expert(agent)
 
 - Logic Agent: Mathematic, logical problems solving
-- Score Agent: Phân tích dữ liệu bảng biểu (CSV) bằng Pandas.
+- Score Agent: Do analysis on table(CSV) with pandas.
 - Knowledge Agent (Study/Article): Research materials deeply using hybrid search (Semantic + Keyword).
 - Router: Queries classification using Semantic Similarity and decision from small llm.
 - Chit Chat: If the user greets the system, or ask unrelated question, the system will greet and introduce it.
@@ -101,7 +101,7 @@ graph TD
 | **Main LLM (Reasoning)** | **Qwen 2.5 1.5B Instruct** |
 | **Router / Classifier** | **Qwen 3 4B** |
 | **Vector Database** | **FAISS Engine** |
-| **Retrieval Strategy** | Hybrid (BM25 + Vector) ** |
+| **Retrieval Strategy** | **Hybrid (BM25 + Vector)** |
 | **Code Execution** | **PythonREPL** (LangChain Experimental Sandbox) |
 | **Math Solver** | **Program of Thought (PoT)** w/ Self-Correction Loop |
 | **Data Processing** | Regex, JSON, Pandas (CSV handling) |
