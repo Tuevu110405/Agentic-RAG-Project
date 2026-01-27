@@ -13,7 +13,7 @@ Project aims not only to develop a normal RAG chatbot, but also build an **Agent
 
 ## 2.Pipeline
 ```mermaid
-graph TD
+graph LR
     %% --- KHỞI TẠO ---
     Start((Start)) --> UserInput[/"User Query<br/>(Gradio / JSON)"/]
     
@@ -104,6 +104,7 @@ graph TD
 | **Retrieval Strategy** | **Hybrid (BM25 + Vector)** |
 | **Code Execution** | **PythonREPL** (LangChain Experimental Sandbox) |
 | **Math Solver** | **Program of Thought (PoT)** w/ Self-Correction Loop |
+| **Interface** | **Gradio** |
 | **Data Processing** | Regex, JSON, Pandas (CSV handling) |
 | **Environment** | Python 3.10+ |
 
