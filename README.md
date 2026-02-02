@@ -13,7 +13,7 @@ Project aims not only to develop a normal RAG chatbot, but also build an **Agent
 
 ## 2.Pipeline
 ```mermaid
-graph LR
+graph TD
     %% --- KHỞI TẠO ---
     Start((Start)) --> UserInput[/"User Query<br/>(Gradio / JSON)"/]
     
@@ -98,8 +98,8 @@ graph LR
 | Component | Implementation |
 | :--- | :--- |
 | **Orchestration** | **LangChain**|
-| **Main LLM (Reasoning)** | **Qwen 2.5 1.5B Instruct** |
-| **Router / Classifier** | **Qwen 3 4B** |
+| **Main LLM (Reasoning)** | **Qwen 3 4B** |
+| **Router / Classifier** | **Qwen 2.5 1.5B Instruct** |
 | **Vector Database** | **FAISS Engine** |
 | **Retrieval Strategy** | **Hybrid (BM25 + Vector)** |
 | **Code Execution** | **PythonREPL** (LangChain Experimental Sandbox) |
@@ -114,7 +114,7 @@ agentic-rag-project/
 │
 ├── .gitignore              
 ├── requirements.txt        
-├── README.md               # 
+├── README.md               
 ├── main.py                 # (Entry point)
 │
 ├── data/                   # Data containing
@@ -147,7 +147,7 @@ agentic-rag-project/
 │       └── ui.py           # Gradio script (create_ui)
 │
 └── Project_Datacom_colab.ipynb  # I developed this system here, You can run demo here
-└── Project_Datacom_local.ipynb  # I can locally run demo here 
+└── Project_Datacom_local.ipynb  # You can locally run demo with notebook here 
 ```
 
 ## 5.Detail Feature 
