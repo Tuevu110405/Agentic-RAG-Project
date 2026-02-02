@@ -5,6 +5,7 @@ from src.rag.loader import Loader
 from src.models.llm_loader import get_router, get_agent
 from src.agents.main_agent import Main
 from src.interface import ui
+from src.models.masked_chinese_router import get_masked_chinese_router
 
 # initialize vector store
 embed_model = SentenceTransformer(config.embed_model)
@@ -23,7 +24,10 @@ article_chunks = loader.semantic_load(config.article_path, semantic_threshold=0.
 vector_db.add_collection("article", article_chunks)
 
 # initialize lm
-llm_router = get_router()
+if config.is_chinese_mask_router == True:
+    llm_router = get_masked_chinese_router()
+else:
+    llm_router = get_router()
 llm_agent = get_agent()
 
 #initialize main flow 

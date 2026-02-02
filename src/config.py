@@ -20,5 +20,6 @@ class Config:
     study_path = DATA_DIR / "study.txt"
     csv_path = DATA_DIR / "student_scores.csv"
     article_path = DATA_DIR / "article.txt"
+    is_chinese_mask_router = True
 
 config = Config()
