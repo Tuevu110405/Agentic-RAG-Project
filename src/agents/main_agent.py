@@ -8,12 +8,13 @@ from src.config import config
 
 
 class Main:
-    def __init__(self, llm_mini, llm_large, vector_db, embed_model):
+    def __init__(self, llm_mini, llm_large, vector_db, embed_model, llm_cloud):
         self.llm_mini = llm_mini
         self.query_processor = Router(llm_mini, embed_model)
         self.llm_large = llm_large
         self.vector_db = vector_db
         self.python_repl = PythonREPL()
+        self.llm_cloud = llm_cloud
         self.answer_prompt_study = ChatPromptTemplate.from_messages([
             ("system", """You are a helpful AI assistant; your task is to answer question from user related to history and geography
 SAFETY AND HONESTY RULES:
@@ -64,9 +65,43 @@ Query:
 
     #math direction methods
     #extract code generated from llm
-    def extract_code(self, text):
-        match = re.search(r"```python\n(.*?)\n```", text, re.DOTALL)
-        return match.group(1) if match else None
+    def extract_code(self,text):
+        # Bước 1: Làm sạch chuỗi đầu vào (đôi khi Gemini trả về ```json ở ngoài cùng)
+        clean_text = text.strip()
+        if clean_text.startswith("```json"):
+            clean_text = clean_text.replace("```json", "").replace("```", "")
+
+        # Bước 2: Thử Parse JSON
+        # Vì output của bạn là {"answer": "..."} nên ta cần lấy nội dung bên trong key "answer"
+        try:
+            data = json.loads(clean_text)
+            if isinstance(data, dict):
+                # Ưu tiên lấy từ key 'answer', nếu không có thì lấy chuỗi gốc
+                text = data.get("answer", text)
+            elif isinstance(data, str):
+                # Trường hợp parse ra trực tiếp string
+                text = data
+        except json.JSONDecodeError:
+            # Nếu không phải JSON hợp lệ thì giữ nguyên text cũ để regex xử lý
+            pass
+
+        # Bước 3: Dùng Regex linh hoạt hơn
+        # - (?:python|py)? : Chấp nhận ```python, ```py hoặc chỉ ```
+        # - \s+ : Chấp nhận mọi khoảng trắng (xuống dòng \n, dấu cách) sau thẻ mở
+        # - (.*?) : Nội dung code
+        # - \s* : Bỏ qua khoảng trắng thừa ở cuối trước khi đóng ```
+        pattern = r"```(?:python|py)?\s+(.*?)\s+```"
+
+        match = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
+        if match:
+            return match.group(1).strip()
+
+        # Fallback: Nếu không tìm thấy pattern ```...``` nhưng text đã được extract từ JSON
+        # và có vẻ giống code (có import, print...), ta trả về text đó luôn.
+        if "import " in text or "print(" in text:
+            return text.strip()
+
+        return None
 
 
     #study direction
@@ -77,7 +112,7 @@ Query:
         print(f"DEBUG-Rewrite: {rewrite}")
         print(f"DEBUG-Keywords: {keywords}")
 
-        docs = self.vector_db.hybrid_search(
+        docs = self.vector_db.hybrid_search(#query = rewritten_query,
 
                                             query_dense = rewrite,
                                             query_sparse = keywords,
@@ -104,7 +139,7 @@ Query:
         print(f"DEBUG-Rewrite: {rewrite}")
         print(f"DEBUG-Keywords: {keywords}")
 
-        docs = self.vector_db.hybrid_search(
+        docs = self.vector_db.hybrid_search(#query = rewritten_query,
 
                                             query_dense = rewrite,
                                             query_sparse = keywords,
@@ -251,7 +286,8 @@ print(f"So, the probability is **{{count}}/{{total_combinations}}** (approx **{{
 
             # Bước A: Gọi LLM để sinh code
             try:
-                ai_msg = self.llm_large.invoke(messages)
+                ai_msg = self.llm_cloud.invoke(messages)
+                print(f"   [Logic] LLM Response: {ai_msg.content}")
             except Exception as e:
                 print(f"   [Logic] LLM Error: {e}")
                 return "I apologize, but I encountered an error while processing your request."
@@ -269,6 +305,7 @@ print(f"So, the probability is **{{count}}/{{total_combinations}}** (approx **{{
                     return content
 
                 # Nếu chưa phải lượt cuối, nhắc AI viết code (vì ta đang ở trong Logic Agent)
+                print("The code can not be extracted")
                 messages.append(HumanMessage(content="You didn't provide any Python code. Please write the Python code to calculate the answer."))
                 continue
 
@@ -299,7 +336,7 @@ print(f"So, the probability is **{{count}}/{{total_combinations}}** (approx **{{
 
                 # Gọi LLM lần cuối để diễn giải kết quả
                 messages.append(HumanMessage(content=interpretation_prompt))
-                final_response_msg = self.llm_large.invoke(messages)
+                final_response_msg = self.llm_cloud.invoke(messages)
 
                 return final_response_msg.content # Trả về câu trả lời tự nhiên
 
@@ -317,14 +354,15 @@ print(f"So, the probability is **{{count}}/{{total_combinations}}** (approx **{{
         print("   [Logic] Retries exhausted.")
         return "I tried to run the calculation multiple times but encountered errors. Please check the logic."
 
-    def get_answer_score(self, question_text, csv_path = config.csv_path):
+    def get_answer_score(self, question_text, csv_path = config.csv_path, max_tries=3):
+
         messages = [
         SystemMessage(content=f"""You are a Python Expert and Data Analyst.
 
 
 RESOURCES:
 - You have a CSV file at: '{csv_path}'
-- Columns: "name", "score
+- Columns: "name", "score"
 
 TASK:
 1. Write Python code to load the CSV using pandas.
@@ -340,6 +378,12 @@ TIPS:
 - Handle potential empty results gracefully.
 - If the user asks for a list, print it nicely (e.g., bullet points).
 
+Student Evaluation:
+- Student who having score bigger than 90 is excellent student.
+- Student who having score bigger than 80 is good student.
+- Student who having score bigger than 70 is average student.
+- Student who having score smaller than 70 is bad student.
+
 Return ONLY the Python code block.
 
 
@@ -352,12 +396,12 @@ Return ONLY the Python code block.
 
         # 2. Vòng lặp Suy luận & Sửa lỗi (ReAct Loop)
         # 2. Vòng lặp Suy luận & Sửa lỗi (ReAct Loop)
-        for attempt in range(3):
-            print(f"   [Score Agent] Attempt {attempt+1}...")
+        for attempt in range(max_tries):
+            print(f"   [Score Agent] Attempt {attempt+1}/{max_tries}...")
 
             # 1. Get Code from LLM
             try:
-                ai_msg = self.llm_large.invoke(messages)
+                ai_msg = self.llm_cloud.invoke(messages)
                 messages.append(ai_msg)
             except Exception as e:
                 return f"System Error: {e}"

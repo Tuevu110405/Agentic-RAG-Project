@@ -98,7 +98,8 @@ graph TD
 | Component | Implementation |
 | :--- | :--- |
 | **Orchestration** | **LangChain**|
-| **Main LLM (Reasoning)** | **Qwen 3 4B** |
+| **Main LLM (Knowledge Agent)** | **Qwen 3 4B** |
+| **Main LLM (Logical Agent)** | **Gemini 2.5 Flash** |
 | **Router / Classifier** | **Qwen 2.5 1.5B Instruct** |
 | **Vector Database** | **FAISS Engine** |
 | **Retrieval Strategy** | **Hybrid (BM25 + Vector)** |
