@@ -199,6 +199,7 @@ Query:
    - Bad: `print(x)`
    - Bad: `print("Answer: A")`
    - Good: `print(f"I calculated it, and the total is {total}. This is because...")`
+3. Return ONLY the Python code block.If the model returns a json structure, the code must be value of the key named "answer"
 
 Rules for Code:
 1. The name of variable: Avoid using Python keywords (`lambda`, `class`, `return`, `min`, `max`, `sum`...). Should use `var_x`, `total_v`,...
@@ -384,7 +385,7 @@ Student Evaluation:
 - Student who having score bigger than 70 is average student.
 - Student who having score smaller than 70 is bad student.
 
-Return ONLY the Python code block.
+Return ONLY the Python code block.If the model returns a json structure, the code must be value of the key named "answer"
 
 
 """
