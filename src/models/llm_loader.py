@@ -7,6 +7,9 @@ from langchain_community.chat_models import ChatHuggingFace
 from langchain_community.llms import HuggingFacePipeline
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from src.config import config
+from src.models.cloud_model import GeminiChatModel
+import os 
+from dotenv import load_dotenv
 
 
 def get_router():
@@ -42,7 +45,7 @@ def get_agent():
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
+            bnb_4bit_quant_type="nf4"
             # bnb_4bit_compute_dtype=torch.bfloat16
         )
 
@@ -64,4 +67,15 @@ def get_agent():
     llm = HuggingFacePipeline(pipeline=pipe)
 
     return llm
+
+load_dotenv()
+def get_cloud_model():
+    print("Loading cloud model...")
+    GOOGLE_API_KEY = os.getenv("GEMINI_API")
+    llm_cloud_model = GeminiChatModel(
+        api_key=GOOGLE_API_KEY,
+        model_name="gemini-2.5-flash", # Model này cực nhanh cho Router
+        temperature=0.0 # Để 0 để kết quả phân loại luôn ổn định
+    )
+    return llm_cloud_model
 
