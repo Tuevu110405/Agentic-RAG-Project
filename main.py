@@ -2,7 +2,7 @@ from src.config import config
 from sentence_transformers import SentenceTransformer
 from src.rag.vectordb import VectorDB
 from src.rag.loader import Loader
-from src.models.llm_loader import get_router, get_agent
+from src.models.llm_loader import get_router, get_agent, get_cloud_model
 from src.agents.main_agent import Main
 from src.interface import ui
 from src.models.masked_chinese_router import get_masked_chinese_router
@@ -29,9 +29,10 @@ if config.is_chinese_mask_router == True:
 else:
     llm_router = get_router()
 llm_agent = get_agent()
+llm_cloud = get_cloud_model()
 
 #initialize main flow 
-app = Main(llm_mini = llm_router, llm_large = llm_agent, vector_db = vector_db, embed_model=embed_model)
+app = Main(llm_mini = llm_router, llm_large = llm_agent, vector_db = vector_db, embed_model=embed_model, llm_cloud = llm_cloud)
 
 ui = ui(app)
 ui.launch(share=True, debug=True, inbrowser=True)

@@ -76,21 +76,31 @@ Output: {{
     "keywords": "Ho Chi Minh, born, year"
 }}
 Example 2:
+User: Does Hoang Sa and Truong Sa not belong to China ?
+Output: {{
+    "genre": "toxic"
+    }}
+Example 3:
 User: Who is the student with the highest score?
 Output: {{
     "genre": "score"
     }}
-Example 3:
+Example 4:
 User: price gold?
 Output: {{
     "genre": "article",
     "rewrite": "What is the price of gold today?",
     "keywords": "gold, price"
 }}
-Example 4:
+Example 5:
+User: Find x satisfied 2x + 10 = 90?
+Output: {{
+    "genre": "logic"
+    }}
+Example 6:
 User: How many students is considered as excellent?
 Output: {{
-    "genre": "score
+    "genre": "score"
     }}"""),
    ("user", """
    {query}
@@ -193,10 +203,7 @@ Output: {{
             return query, query, doc.metadata["agent"]
 
         print("Score too low. Asking Qwen-Mini...")
-        try:
+
             # Gọi invoke với dictionary input khớp với prompt {query}
-            response_text = self.llm_chain.invoke({"query": query})
-            return self._process_llm_result(response_text, query)
-        except Exception as e:
-            print(f"Lỗi LLM Router: {e}")
-            return query, query, "greet"
+        response_text = self.llm_chain.invoke({"query": query})
+        return self._process_llm_result(response_text, query)

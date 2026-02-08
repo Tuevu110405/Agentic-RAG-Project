@@ -98,7 +98,8 @@ graph TD
 | Component | Implementation |
 | :--- | :--- |
 | **Orchestration** | **LangChain**|
-| **Main LLM (Reasoning)** | **Qwen 3 4B** |
+| **Main LLM (Knowledge Agent)** | **Qwen 3 4B** |
+| **Main LLM (Logical Agent)** | **Gemini 2.5 Flash** |
 | **Router / Classifier** | **Qwen 2.5 1.5B Instruct** |
 | **Vector Database** | **FAISS Engine** |
 | **Retrieval Strategy** | **Hybrid (BM25 + Vector)** |
@@ -128,7 +129,8 @@ agentic-rag-project/
 │   │
 │   ├── models/                     # Load llm and embedding
 │   │   ├── __init__.py
-│   │   ├── llm_loader.py           # Function get_router(), get_agent()
+│   │   ├── llm_loader.py           # Function get_router(), get_agent(), get_cloud_model()
+│   │   ├── cloud_model.py           # Wrapper for Gemini 2-5
 |   |   ├── masked_chinese_router   # Function get_masked_chinese_router() 
 │   │   └── embedding.py            # HelperEmbeddingsAdapter
 │   │
@@ -167,7 +169,7 @@ agentic-rag-project/
 ### 5.4 RAG Agent (Hybrid Search)
 - **Semantic Search**: Search based on meaning (using the embedding model).
 - **Keyword Search (BM25)**: Search based on exact keywords (important for proper names, places, numbers).
-- **Weighted Fusion**: Combine the results from the two searching algorithms above according to weighting (e.g., 0.5/0.5) to produce the best context for LLM.
+- **Weighted Fusion**: Combine the results from the two searching algorithms above according to weighting (e.g., 0.8/0.2) to produce the best context for LLM.
 
 ## 6. Implementation
 ### 6.1 Clone and Install Needed Frameworks
@@ -194,4 +196,4 @@ After being reviewed, I found that Qwen 2.5 tends to generate Chinese word. Ther
 The project is published under APACHE License 2.0
 
 
-You can run demo at [Colab Notebook](https://colab.research.google.com/drive/1rvls42CmH4Ssii1IF5jrIGJ6ks63U6nv#scrollTo=4_Gg_EIiRDu9)
+You can run demo at [Colab Notebook](https://colab.research.google.com/drive/1qgMp3mQKnufVFqx4tWWBUiaGI5hXWyig?usp=sharing)
